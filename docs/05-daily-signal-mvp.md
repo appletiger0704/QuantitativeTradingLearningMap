@@ -22,12 +22,18 @@ Scheduler（台北時間、交易日曆）
 ## 日訊號輸出建議欄位
 `run_id, strategy_id, strategy_version, config_hash, symbol, as_of_trade_date, generated_at, action, target_weight, reference_close, execution_earliest, reason, risk_checks, data_status`。
 
-重要：**HOLD** 表示保持現有配置；**NO_DATA / BLOCKED** 表示資料或風控不合格，不能以 HOLD 偷渡。沒有既有持倉輸入時，區分「目標持倉」與「相對目前持倉需要的實際訂單」。
+訊號 `action` 統一列舉：**BUY / SELL / HOLD / NO_DATA / BLOCKED**。
+- **HOLD**：通過資料與風控檢查，維持目前目標部位。
+- **NO_DATA**：資料缺漏、過期、尚未完整發布或資料品質檢查失敗；不得推導交易意圖。
+- **BLOCKED**：資料有效且可算出意圖，但因持倉上限、人工停止、交易限制或其他風控規則禁止執行。
+- **BUY / SELL**：有效訊號且通過風控；仍非已成交訂單。
+
+每筆輸出保留 `reason_code` 和可讀原因；優先判定資料有效性，再判定交易風控。沒有既有持倉輸入時，須區分「目標部位」與「相對目前持倉需要的實際委託」，不得直接把目標權重當成已可下單指令。
 
 ## 可靠性與安全
 - Idempotency：`strategy_id + strategy_version + as_of_trade_date + symbol + config_hash`；重跑不重複產生行動建議。
 - Data cut-off：收盤數據是否已正式發布需檢查；遲到、停市與假日自動跳過或告警。
-- Fail closed：缺資料、重複資料、異常價格、風控失敗時標示 BLOCKED。
+- Fail closed：缺資料、重複資料、異常價格或未準時發布 → **NO_DATA**；資料有效但交易風控禁止 → **BLOCKED**；兩者皆不可產生 BUY / SELL。
 - 可追溯：輸入快照／校驗碼、版本、參數、交易日、產生時間、結果都保存。
 - 秘密資訊放環境變數或秘密管理器；不提交 token、帳戶及個人持倉到 Git。
 - 定期驗證官方交易日曆、資料使用條款與交易成本假設，不把示範值視為現行法規。
