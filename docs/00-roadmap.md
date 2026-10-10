@@ -28,7 +28,7 @@
 - 任何 Phase 都要保留反例與失敗實驗。
 
 ## 閱讀順序
-01 Foundations → 02 Data → 03 Backtesting → 04 Strategies → 05 MVP → 06 Exercises。
+01 Foundations → 02 Data → 03 Backtesting → 04 Strategies → 05 MVP → 06 Exercises → [07 可執行 Lab](07-first-running-lab.md) → [08 12 週學習計畫](08-guided-study-plan.md) → [09 台股研究檢核表](09-taiwan-market-research-checklist.md)。
 
 ## 研究閉環
 ```text
