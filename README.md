@@ -12,6 +12,19 @@
 5. [策略教材與統一規格](docs/04-strategies.md)
 6. [每日訊號系統 MVP 架構](docs/05-daily-signal-mvp.md)
 7. [練習任務、驗收與研究紀錄](docs/06-exercises-checklist.md)
+8. [Lab 1：可執行的 SMA 日線回測](docs/07-first-running-lab.md)
+9. [12 週引導式學習計畫](docs/08-guided-study-plan.md)
+10. [台灣市場實際研究檢核表](docs/09-taiwan-market-research-checklist.md)
+
+## 快速開始：執行練習
+
+需要 Python 3.10+；此入門練習只使用標準函式庫。範例為**虛構行情**，並非可下單策略。
+
+```bash
+python examples/lesson01_ma_backtest.py
+python -m unittest discover -s examples -p "test_*.py" -v
+```
+
 
 ## 建議學習方式
 每一章遵循 **概念 → 市場假設 → 明確規則 → 資料 → Python → 回測 → 偏誤檢查 → 結論**。每個階段要交付可重跑的實驗；不能只憑報酬率判定成功。先完成日線研究與紙上交易，再使用真實資金。
@@ -19,8 +32,9 @@
 ## 推薦專案結構（逐步建立）
 ```text
 docs/                   # Markdown 教材
+examples/               # 合成行情 Lab、測試與資料
 notebooks/              # 探索性研究，不放正式排程邏輯
-src/quant_trading/
+src/quant_trading/          # 下一階段待建立
   data/                 # Provider 介面與台股資料正規化
   indicators/           # 指標
   strategies/           # 交易訊號（純函式）
