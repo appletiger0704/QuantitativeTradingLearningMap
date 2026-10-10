@@ -20,7 +20,7 @@ Scheduler（台北時間、交易日曆）
 ```
 
 ## 日訊號輸出建議欄位
-`run_id, strategy_id, strategy_version, config_hash, symbol, as_of_trade_date, generated_at, action, target_weight, reference_close, execution_earliest, reason, risk_checks, data_status`。
+`run_id, business_key, revision_key, input_fingerprint, strategy_id, strategy_version, config_hash, symbol, as_of_trade_date, generated_at, action, reason_code, target_weight, reference_close, execution_earliest, risk_checks`。
 
 訊號 `action` 統一列舉：**BUY / SELL / HOLD / NO_DATA / BLOCKED**。
 - **HOLD**：通過資料與風控檢查，維持目前目標部位。
@@ -31,7 +31,7 @@ Scheduler（台北時間、交易日曆）
 每筆輸出保留 `reason_code` 和可讀原因；優先判定資料有效性，再判定交易風控。沒有既有持倉輸入時，須區分「目標部位」與「相對目前持倉需要的實際委託」，不得直接把目標權重當成已可下單指令。
 
 ## 可靠性與安全
-- Idempotency：`strategy_id + strategy_version + as_of_trade_date + symbol + config_hash`；重跑不重複產生行動建議。
+- Idempotency 分兩層：`business_key = hash(strategy_id, strategy_version, as_of_trade_date, symbol, config_hash)` 對應同一研究問題；`revision_key = hash(business_key, input_fingerprint)` 識別當次輸入版本。`input_fingerprint` 至少包括市場資料快照、持倉快照與風控設定版本。相同 revision 重試不重複產出；遲到／修正資料改變 fingerprint 時新增 **immutable revision**，保留原先 NO_DATA／BLOCKED／交易訊號結果，不得覆寫。`run_id` 另記錄每一次執行嘗試，最新結果需註明修訂次序。
 - Data cut-off：收盤數據是否已正式發布需檢查；遲到、停市與假日自動跳過或告警。
 - Fail closed：缺資料、重複資料、異常價格或未準時發布 → **NO_DATA**；資料有效但交易風控禁止 → **BLOCKED**；兩者皆不可產生 BUY / SELL。
 - 可追溯：輸入快照／校驗碼、版本、參數、交易日、產生時間、結果都保存。
